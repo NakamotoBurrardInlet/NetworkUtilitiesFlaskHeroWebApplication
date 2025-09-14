@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network DNS Hero App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Define custom Tailwind colors and extend theme */
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        :root {
+            --color-primary: #3b82f6; /* blue-500 */
+            --color-secondary: #60a5fa; /* blue-400 */
+            --color-text-light: #1f2937; /* gray-800 */
+            --color-text-dark: #e5e7eb; /* gray-200 */
+            --color-bg-light: #f9fafb; /* gray-50 */
+            --color-bg-dark: #111827; /* gray-900 */
+            --color-card-light: #ffffff; /* white */
+            --color-card-dark: #1f2937; /* gray-800 */
+            --color-border-light: #e5e7eb; /* gray-200 */
+            --color-border-dark: #374151; /* gray-700 */
+        }
+
+        /* Light Mode */
+        .light {
+            background-color: var(--color-bg-light);
+            color: var(--color-text-light);
+        }
+        .light .bg-card { background-color: var(--color-card-light); }
+        .light .text-primary { color: var(--color-primary); }
+        .light .border-card { border-color: var(--color-border-light); }
+
+        /* Dark Mode */
+        .dark {
+            background-color: var(--color-bg-dark);
+            color: var(--color-text-dark);
+        }
+        .dark .bg-card { background-color: var(--color-card-dark); }
+        .dark .text-primary { color: var(--color-secondary); } /* Use a lighter primary for dark mode */
+        .dark .border-card { border-color: var(--color-border-dark); }
+
+        /* Global styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--color-bg-light);
+            border-radius: 10px;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: var(--color-bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 10px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: var(--color-secondary);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb; /* blue-600 */
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6; /* blue-500 */
+        }
+
+        .alert-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .alert-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .alert-box.error {
+            background-color: #f44336; /* Red */
+        }
+    </style>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--color-primary)',
+                        secondary: 'var(--color-secondary)',
+                        'bg-light': 'var(--color-bg-light)',
+                        'bg-dark': 'var(--color-bg-dark)',
+                        'card-light': 'var(--color-card-light)',
+                        'card-dark': 'var(--color-card-dark)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="{{ initial_theme }} min-h-screen flex flex-col antialiased">
+    <!-- Message Box for Alerts -->
+    <div id="message-box" class="alert-box"></div>
+
+    <header class="bg-card shadow-sm border-b border-card-border p-4 flex justify-between items-center z-10 sticky top-0">
+        <div class="flex items-center space-x-3">
+            <svg width="32" height="32" class="text-primary-500">
+                <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#wifi"></use>
+            </svg>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Network DNS Hero</h1>
+        </div>
+        <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-200">
+            <svg width="24" height="24">
+                <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#moon" id="theme-icon"></use>
+            </svg>
+        </button>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 md:p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Widget: Network Configuration -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#settings"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Network Configuration</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Manage your network adapter settings, protocols, and firewall rules for optimal performance and security.</p>
+                <button onclick="performAction('network_configuration', 'Network configuration settings opened (conceptual).')" class="btn-primary">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#sliders"></use>
+                    </svg>
+                    Open Settings
+                </button>
+            </div>
+
+            <!-- Widget: Hide IP -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#shield-off"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Hide IP</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Conceal your real IP address to enhance your online privacy and security from trackers.</p>
+                <button onclick="performAction('hide_ip', 'IP Hiding initiated.')" class="btn-primary btn-red">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#eye-off"></use>
+                    </svg>
+                    Activate IP Hide
+                </button>
+            </div>
+
+            <!-- Widget: Spoof Outgoing Seeds -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#bot"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Spoof Outgoing Seeds</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Anonymize your data packets to prevent tracing and ensure your communications remain private.</p>
+                <button onclick="performAction('spoof_outgoing_seeds', 'Spoofing outgoing seeds.')" class="btn-primary btn-green">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#send"></use>
+                    </svg>
+                    Spoof Seeds
+                </button>
+            </div>
+
+            <!-- Widget: Log All Online Seed Transactions -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#file-text"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Log Seed Transactions</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Keep a detailed record of all online data transfers and seed transactions for auditing.</p>
+                <button onclick="performAction('log_seed_transactions', 'Logging current seed transactions.')" class="btn-primary btn-orange">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#clipboard-list"></use>
+                    </svg>
+                    View Logs
+                </button>
+            </div>
+
+            <!-- Widget: Release Cache -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#delete"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Release Cache</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Clear cached data to free up resources and ensure you're accessing the latest content.</p>
+                <button onclick="performAction('release_cache', 'Cache released successfully.')" class="btn-primary btn-purple">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#refresh-cw"></use>
+                    </svg>
+                    Clear Cache
+                </button>
+            </div>
+
+            <!-- Widget: DNS Speed -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#gauge"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">DNS Speed</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Analyze and optimize your DNS resolver speed for faster website loading and responsiveness.</p>
+                <button onclick="performAction('analyze_dns_speed', 'Analyzing DNS speed...')" class="btn-primary btn-cyan">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#zap"></use>
+                    </svg>
+                    Test DNS Speed
+                </button>
+            </div>
+
+            <!-- Widget: VPN Network -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#network"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">VPN Network</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Connect to a secure Virtual Private Network to encrypt your traffic and bypass geo-restrictions.</p>
+                <button onclick="performAction('activate_vpn_network', 'Activating VPN Network.')" class="btn-primary btn-teal">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#globe"></use>
+                    </svg>
+                    Connect VPN
+                </button>
+            </div>
+
+            <!-- Widget: In and Out Network -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#activity"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">In & Out Network</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Monitor real-time incoming and outgoing network traffic for bandwidth usage.</p>
+                <button onclick="performAction('monitor_network_traffic', 'Monitoring network traffic...')" class="btn-primary btn-pink">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#bar-chart-2"></use>
+                    </svg>
+                    Monitor Traffic
+                </button>
+            </div>
+
+            <!-- Widget: Stay Connected -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#link"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Stay Connected</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Ensure a continuous and stable network connection, preventing disconnections.</p>
+                <button onclick="performAction('stay_connected', 'Keeping connection alive.')" class="btn-primary btn-yellow">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#heart"></use>
+                    </svg>
+                    Maintain Connection
+                </button>
+            </div>
+
+            <!-- Widget: Spoof IPv4 -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#globe"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Spoof IPv4</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Change your perceived IPv4 address to enhance anonymity and bypass restrictions.</p>
+                <button onclick="performAction('spoof_ipv4', 'Spoofing IPv4 address.')" class="btn-primary btn-red">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#ghost"></use>
+                    </svg>
+                    Spoof IPv4
+                </button>
+            </div>
+
+            <!-- Widget: Log All Network Identities -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#fingerprint"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Log Network Identities</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Discover and log all active network identities and devices connected to your network.</p>
+                <button onclick="performAction('log_network_identities', 'Logging all network identities.')" class="btn-primary btn-orange">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#list"></use>
+                    </svg>
+                    Scan Identities
+                </button>
+            </div>
+
+            <!-- Widget: Network Speed Analyzer -->
+            <div class="bg-card p-6 rounded-xl shadow-lg border border-card-border flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg width="24" height="24" class="text-primary">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#trending-up"></use>
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Network Speed Analyzer</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">Measure your internet connection speed to ensure you're getting optimal bandwidth.</p>
+                <button onclick="performAction('analyze_network_speed', 'Analyzing network speed...')" class="btn-primary btn-cyan">
+                    <svg width="20" height="20" class="inline-block mr-2">
+                        <use href="https://cdn.jsdelivr.net/npm/lucide-static@latest/sprite.svg#speedometer"></use>
+                    </svg>
+                    Run Speed Test
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-card shadow-inner border-t border-card-border p-4 text-center text-gray-600 dark:text-gray-300 mt-8">
+        <p>&copy; 2025 Network DNS Hero App. All rights reserved. Designed for Speedy Clarity in Network Communication.</p>
+    </footer>
+
+    <script>
+        // Set initial theme from Flask variable
+        document.documentElement.className = "{{ initial_theme }}";
+    </script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

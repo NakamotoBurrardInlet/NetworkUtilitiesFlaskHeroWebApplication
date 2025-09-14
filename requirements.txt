@@ -1,0 +1,2 @@
+# requirements.txt - Python dependencies for Network DNS Hero App
+Flask==2.3.2

@@ -1,0 +1,66 @@
+/* static/css/style.css - Custom styles for Network DNS Hero App */
+
+/* General button styling */
+.btn-primary {
+    -ms-flex-item-align: auto justify-center px-6 py-3 rounded-full font-medium text-white transition-all duration-300 ease-in-out
+    var(--color-primary), var(--color-secondary);
+    background-size: 200% auto; /* For hover effect */
+}
+
+.btn-primary:hover {
+    background-position: right center; /* Move gradient on hover */
+}
+
+.dark .btn-primary {
+    background-image: linear-gradient(to right, var(--color-secondary), var(--color-primary));
+}
+
+/* Specific button color variations for visual appeal */
+.btn-red {
+    background-image: linear-gradient(to right, #ef4444, #dc2626); /* red-500 to red-700 */
+}
+.dark .btn-red {
+    background-image: linear-gradient(to right, #f87171, #ef4444); /* red-400 to red-500 */
+}
+.btn-green {
+    background-image: linear-gradient(to right, #22c55e, #16a34a); /* green-500 to green-700 */
+}
+.dark .btn-green {
+    background-image: linear-gradient(to right, #4ade80, #22c55e); /* green-400 to green-500 */
+}
+.btn-orange {
+    background-image: linear-gradient(to right, #f97316, #ea580c); /* orange-500 to orange-700 */
+}
+.dark .btn-orange {
+    background-image: linear-gradient(to right, #fb923c, #f97316); /* orange-400 to orange-500 */
+}
+.btn-purple {
+    background-image: linear-gradient(to right, #a855f7, #9333ea); /* purple-500 to purple-700 */
+}
+.dark .btn-purple {
+    background-image: linear-gradient(to right, #c084fc, #a855f7); /* purple-400 to purple-500 */
+}
+.btn-cyan {
+    background-image: linear-gradient(to right, #06b6d4, #0891b2); /* cyan-500 to cyan-700 */
+}
+.dark .btn-cyan {
+    background-image: linear-gradient(to right, #22d3ee, #06b6d4); /* cyan-400 to cyan-500 */
+}
+.btn-teal {
+    background-image: linear-gradient(to right, #14b8a6, #0d9488); /* teal-500 to teal-700 */
+}
+.dark .btn-teal {
+    background-image: linear-gradient(to right, #2dd4bf, #14b8a6); /* teal-400 to teal-500 */
+}
+.btn-pink {
+    background-image: linear-gradient(to right, #ec4899, #db2777); /* pink-500 to pink-700 */
+}
+.dark .btn-pink {
+    background-image: linear-gradient(to right, #f472b6, #ec4899); /* pink-400 to pink-500 */
+}
+.btn-yellow {
+    background-image: linear-gradient(to right, #eab308, #d97706); /* yellow-500 to yellow-700 */
+}
+.dark .btn-yellow {
+    background-image: linear-gradient(to right, #facc15, #eab308); /* yellow-400 to yellow-500 */
+}
